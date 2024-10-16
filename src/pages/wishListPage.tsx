@@ -1,38 +1,16 @@
-import React, { useEffect, useState } from "react";
 import BookCard from "../components/bookCard";
-import { Book } from "../types/book";
+
+import { RootState } from "../store/store";
+import { useDispatch, useSelector } from "react-redux";
+import { toggleWishlist } from "../store/booksSlice";
 
 const WishlistPage: React.FC = () => {
-  const [wishlist, setWishlist] = useState<number[]>(() => {
-    return JSON.parse(localStorage.getItem("wishlist") || "[]");
-  });
-  const [books, setBooks] = useState<Book[]>([]);
-
-  useEffect(() => {
-    const fetchWishlistBooks = async () => {
-      const fetchedBooks = await Promise.all(
-        wishlist.map((id) => fetchBookById(id))
-      );
-      setBooks(fetchedBooks);
-    };
-
-    fetchWishlistBooks();
-  }, [wishlist]);
-
-  const fetchBookById = async (id: number) => {
-    const response = await fetch(`https://gutendex.com/books/${id}`);
-    return await response.json();
+  const dispatch = useDispatch();
+  const { wishlist, books } = useSelector((state: RootState) => state.books);
+  const wishlistedBooks = books.filter((book) => wishlist.includes(book.id));
+  const handleToggleWishlist = (id: number) => {
+    dispatch(toggleWishlist(id)); // Dispatch the toggle action
   };
-
-  const toggleWishlist = (id: number) => {
-    const updatedWishlist = wishlist.includes(id)
-      ? wishlist.filter((bookId) => bookId !== id)
-      : [...wishlist, id];
-
-    setWishlist(updatedWishlist);
-    localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
-  };
-
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="container mx-auto py-8">
@@ -40,12 +18,12 @@ const WishlistPage: React.FC = () => {
           My Wishlist
         </h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {books.length > 0 ? (
-            books.map((book) => (
+          {wishlistedBooks.length > 0 ? (
+            wishlistedBooks.map((book) => (
               <BookCard
                 key={book.id}
                 book={book}
-                onWishlistToggle={toggleWishlist}
+                onWishlistToggle={handleToggleWishlist}
                 isWishlisted={wishlist.includes(book.id)}
               />
             ))

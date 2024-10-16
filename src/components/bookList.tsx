@@ -105,15 +105,23 @@ const BookList: React.FC = () => {
   const handleGenreChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch(setGenreFilter(event.target.value));
   };
+
   // Filter books based on searchQuery and genreFilter
   const filteredBooks = books.filter((book) => {
     const matchesSearch = book.title
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
+
+    // Check if the book has the genre in its subjects
     const matchesGenre =
-      genreFilter === "" || book.subjects.includes(genreFilter); // Adjust based on the structure of your book data
+      genreFilter === "" ||
+      book.subjects.some((subject) =>
+        subject.toLowerCase().includes(genreFilter.toLowerCase())
+      );
+
     return matchesSearch && matchesGenre;
   });
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -134,19 +142,23 @@ const BookList: React.FC = () => {
           placeholder="Search by title..."
           className="px-4 py-2 border rounded-md w-1/3"
         />
-        <select
-          value={genreFilter}
-          onChange={handleGenreChange}
-          className="px-4 py-2 border rounded-md w-1/4"
-        >
-          <option value="">All Genres</option>
-          <option value="fiction">Fiction</option>
-          <option value="science">Science</option>
-          <option value="horror">Horror</option>
-          <option value="drama">Drama</option>
-          <option value="adventure">Adventure</option>
-          {/* Add more genres if needed */}
-        </select>
+        <div className="mb-4">
+          <label htmlFor="genre" className="mr-2 text-lg">
+            Filter by Genre:
+          </label>
+          <select
+            id="genre"
+            onChange={handleGenreChange}
+            className="px-4 py-2 border rounded-lg"
+          >
+            <option value="">All Genres</option>
+            <option value="Fiction">Fiction</option>
+            <option value="Poetry">Poetry</option>
+            <option value="Horror">Horror</option>
+            <option value="Drama">Drama</option>
+            {/* Add more genres based on your knowledge of the data */}
+          </select>
+        </div>
       </div>
 
       {/* Books List */}
