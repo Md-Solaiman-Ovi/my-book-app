@@ -1,16 +1,23 @@
 import BookCard from "../components/bookCard";
-
-import { RootState } from "../store/store";
+import { AppDispatch, RootState } from "../store/store";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleWishlist } from "../store/booksSlice";
+import { loadBooks, toggleWishlist } from "../store/booksSlice";
+import { useEffect } from "react";
 
 const WishlistPage: React.FC = () => {
-  const dispatch = useDispatch();
-  const { wishlist, books } = useSelector((state: RootState) => state.books);
+  const dispatch = useDispatch<AppDispatch>();
+  const { wishlist, books, currentPage } = useSelector(
+    (state: RootState) => state.books
+  );
   const wishlistedBooks = books.filter((book) => wishlist.includes(book.id));
   const handleToggleWishlist = (id: number) => {
     dispatch(toggleWishlist(id)); // Dispatch the toggle action
   };
+  useEffect(() => {
+    // Load books when component mounts or currentPage changes
+    dispatch(loadBooks(currentPage));
+  }, [dispatch, currentPage]);
+
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="container mx-auto py-8">
