@@ -8,6 +8,7 @@ interface BooksState {
   loading: boolean;
   currentPage: number;
   totalPages: number;
+  totalCount: number; // New property for total count of books
   searchQuery: string;
   genreFilter: string;
 }
@@ -18,6 +19,7 @@ const initialState: BooksState = {
   loading: false,
   currentPage: 1,
   totalPages: 0,
+  totalCount: 0, // Initialize totalCount
   searchQuery: "",
   genreFilter: "",
 };
@@ -34,13 +36,13 @@ export const loadBooks = createAsyncThunk(
 
     // If not in localStorage, fetch data from API
     const response = await axios.get(
-      `https://gutendex.com/books/?page=${page}`
+      `https://gutendex.com/books/?page=${page}`,
     );
 
     // Save fetched data to localStorage
-    localStorage.setItem(`books_page_${page}`, JSON.stringify(response.data));
+    // localStorage.setItem(`books_page_${page}`, JSON.stringify(response.data));
     return response.data;
-  }
+  },
 );
 
 const booksSlice = createSlice({
@@ -68,17 +70,19 @@ const booksSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(loadBooks.pending, (state) => {
-      state.loading = true;
-    });
-    builder.addCase(loadBooks.fulfilled, (state, action) => {
-      state.books = action.payload.results;
-      state.totalPages = Math.ceil(action.payload.count / 10); // Assuming 10 books per page
-      state.loading = false;
-    });
-    builder.addCase(loadBooks.rejected, (state) => {
-      state.loading = false;
-    });
+    builder
+      .addCase(loadBooks.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(loadBooks.fulfilled, (state, action) => {
+        state.books = action.payload.results;
+        state.totalCount = action.payload.count; // Set total count of books
+        state.totalPages = Math.ceil(action.payload.count / 10); // Assuming 10 books per page
+        state.loading = false;
+      })
+      .addCase(loadBooks.rejected, (state) => {
+        state.loading = false;
+      });
   },
 });
 

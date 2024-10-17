@@ -7,7 +7,7 @@ import { useEffect } from "react";
 const WishlistPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { wishlist, books, currentPage } = useSelector(
-    (state: RootState) => state.books
+    (state: RootState) => state.books,
   );
   const wishlistedBooks = books.filter((book) => wishlist.includes(book.id));
   const handleToggleWishlist = (id: number) => {
@@ -21,10 +21,10 @@ const WishlistPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="container mx-auto py-8">
-        <h1 className="text-4xl font-bold text-center text-blue-600 mb-8">
+        <h1 className="mb-8 text-center text-4xl font-bold text-blue-600">
           My Wishlist
         </h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {wishlistedBooks.length > 0 ? (
             wishlistedBooks.map((book) => (
               <BookCard
@@ -35,7 +35,7 @@ const WishlistPage: React.FC = () => {
               />
             ))
           ) : (
-            <p className="text-center text-gray-600 col-span-full">
+            <p className="col-span-full text-center text-gray-600">
               No books in your wishlist.
             </p>
           )}

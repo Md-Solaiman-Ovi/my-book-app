@@ -1,20 +1,29 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { AppDispatch, RootState } from "../store/store"; // Import AppDispatch and RootState
+import { AppDispatch, RootState } from "../store/store";
 import {
   loadBooks,
   toggleWishlist,
   setSearchQuery,
   setGenreFilter,
+  setCurrentPage,
 } from "../store/booksSlice";
 import BookCard from "./bookCard";
+import LoadingAnimation from "./loadingAnimation";
 
 const BookList: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>(); // Use typed dispatch
+  const dispatch = useDispatch<AppDispatch>();
 
   // Selecting state from Redux store
-  const { books, loading, wishlist, searchQuery, genreFilter, currentPage } =
-    useSelector((state: RootState) => state.books);
+  const {
+    books,
+    loading,
+    wishlist,
+    searchQuery,
+    genreFilter,
+    currentPage,
+    totalPages,
+  } = useSelector((state: RootState) => state.books);
 
   useEffect(() => {
     // Load books when component mounts or currentPage changes
@@ -39,44 +48,44 @@ const BookList: React.FC = () => {
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
 
-    // Check if the book has the genre in its subjects
     const matchesGenre =
       genreFilter === "" ||
       book.subjects.some((subject) =>
-        subject.toLowerCase().includes(genreFilter.toLowerCase())
+        subject.toLowerCase().includes(genreFilter.toLowerCase()),
       );
 
     return matchesSearch && matchesGenre;
   });
 
+  const handlePageChange = (page: number) => {
+    if (page > 0 && page <= totalPages) {
+      dispatch(setCurrentPage(page));
+    }
+  };
+
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="loader"></div>
-        <p>Loading books...</p>
-      </div>
-    );
+    return <LoadingAnimation />;
   }
 
   return (
     <div className="flex flex-col gap-5">
       {/* Search and Filter Section */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <input
           type="text"
           value={searchQuery}
           onChange={handleSearchChange}
           placeholder="Search by title..."
-          className="px-4 py-2 border rounded-md w-1/3"
+          className="w-1/3 rounded-md border px-4 py-2"
         />
-        <div className="mb-4">
+        <div className="">
           <label htmlFor="genre" className="mr-2 text-lg">
             Filter by Genre:
           </label>
           <select
             id="genre"
             onChange={handleGenreChange}
-            className="px-4 py-2 border rounded-lg"
+            className="rounded-lg border px-4 py-2"
           >
             <option value="">All Genres</option>
             <option value="Fiction">Fiction</option>
@@ -89,7 +98,7 @@ const BookList: React.FC = () => {
       </div>
 
       {/* Books List */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-8">
+      <div className="mb-8 grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {filteredBooks.length > 0 ? (
           filteredBooks.map((book) => (
             <BookCard
@@ -100,10 +109,31 @@ const BookList: React.FC = () => {
             />
           ))
         ) : (
-          <p className="text-center text-gray-600 col-span-full">
+          <p className="col-span-full text-center text-gray-600">
             No books found.
           </p>
         )}
+      </div>
+
+      {/* Pagination Section */}
+      <div className="fixed bottom-10 left-1/2 right-1/2 flex items-center justify-center gap-4">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <p className="whitespace-nowrap">
+          Page {currentPage} of {totalPages}
+        </p>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
+        >
+          Next
+        </button>
       </div>
     </div>
   );

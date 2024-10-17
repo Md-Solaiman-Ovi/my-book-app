@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 
 const Navbar: React.FC = () => {
   return (
-    <nav className="bg-blue-600 text-white py-4">
-      <div className="container mx-auto flex justify-between items-center px-4">
+    <nav className="bg-blue-600 py-4 text-white">
+      <div className="container mx-auto flex items-center justify-between px-4">
         <div className="text-lg font-bold">
           <Link to="/" className="hover:text-gray-200">
             Book Finder

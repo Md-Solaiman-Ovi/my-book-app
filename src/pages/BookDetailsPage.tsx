@@ -1,33 +1,79 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Book } from '../types/book';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "../store/store";
+import { Book } from "../types/book";
 
-const BookDetailPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+const BookDetails: React.FC = () => {
+  const { id } = useParams<{ id: string }>(); // Get the book ID from the URL
+  const bookId = id || "";
   const [book, setBook] = useState<Book | null>(null);
 
+  // Get navigate function for redirection
+  const navigate = useNavigate();
+
+  // Assuming books are already fetched and stored in the Redux state
+  const books = useSelector((state: RootState) => state.books.books);
+
   useEffect(() => {
-    const fetchBook = async () => {
-      const response = await fetch(`https://gutendex.com/books/${id}`);
-      const data = await response.json();
-      setBook(data);
-    };
+    // Find the book by ID from the Redux store
+    const foundBook = books.find((book) => book.id === parseInt(bookId));
+    if (foundBook) {
+      setBook(foundBook);
+    } else {
+      // If no book is found, redirect to the home page
+      navigate("/", { replace: true });
+    }
+  }, [bookId, books, navigate]);
 
-    fetchBook();
-  }, [id]);
-
-  if (!book) return <p>Loading...</p>;
+  if (!book) {
+    return null; // No need to render anything as we are redirecting
+  }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="container mx-auto py-8">
-        <div className="bg-white rounded-lg shadow-md p-6 flex flex-col md:flex-row">
-          <img src={book.formats["image/jpeg"]} alt={book.title} className="h-60 object-cover mb-4 md:mb-0 md:mr-4 rounded" />
-          <div className="flex-grow">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">{book.title}</h1>
-            <p className="text-gray-600 mb-4">By: {book.authors[0]?.name || "Unknown"}</p>
-            <p className="text-gray-500 mb-4">Genre: {book.subjects[0] || "Unknown"}</p>
-            <p className="text-gray-700">{book.text}</p>
+    <div className="mx-auto mt-10 max-w-7xl rounded-lg bg-blue-100 px-4 py-10 sm:px-6 lg:px-8">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+        {/* Left Section - Book Image */}
+        <div className="flex justify-center">
+          <img
+            src={book.formats["image/jpeg"]}
+            alt={book.title}
+            className="w-full max-w-xs rounded-lg shadow-lg"
+          />
+        </div>
+
+        {/* Right Section - Book Information */}
+        <div>
+          <h1 className="text-4xl font-bold text-gray-900">{book.title}</h1>
+
+          {/* Author Details */}
+          <p className="mt-4 text-lg text-gray-600">
+            <strong>Author:</strong> {book.authors[0].name}
+          </p>
+
+          {/* Genres */}
+          <p className="mt-2 text-lg text-gray-600">
+            <strong>Genres:</strong> {book.subjects.join(", ")}
+          </p>
+
+          {/* Book Description */}
+          <p className="mt-4 text-base leading-7 text-gray-600">
+            This is a fascinating piece of literature written by{" "}
+            {book.authors[0].name}. It's categorized under genres such as{" "}
+            {book.subjects.join(", ")}. Explore this great book from the classic
+            collection and dive into the world of fiction.
+          </p>
+
+          {/* Download Section */}
+          <div className="mt-6">
+            <a
+              href={book.formats["image/jpeg"]}
+              className="inline-block rounded-lg bg-indigo-600 px-6 py-2 text-white shadow-md transition duration-300 hover:bg-indigo-500"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Read Book Online
+            </a>
           </div>
         </div>
       </div>
@@ -35,4 +81,4 @@ const BookDetailPage: React.FC = () => {
   );
 };
 
-export default BookDetailPage;
+export default BookDetails;
