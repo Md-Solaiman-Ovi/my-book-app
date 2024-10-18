@@ -68,7 +68,7 @@ const BookList: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 p-4 md:p-0">
       {/* Search and Filter Section */}
       <div className="mb-4 flex items-center justify-between">
         <input
@@ -78,6 +78,7 @@ const BookList: React.FC = () => {
           placeholder="Search by title..."
           className="w-1/3 rounded-md border px-4 py-2"
         />
+
         <div className="">
           <label htmlFor="genre" className="mr-2 text-lg">
             Filter by Genre:
@@ -116,7 +117,7 @@ const BookList: React.FC = () => {
       </div>
 
       {/* Pagination Section */}
-      <div className="fixed bottom-10 left-1/2 right-1/2 flex items-center justify-center gap-4">
+      <div className="flex items-center justify-center gap-4">
         <button
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
